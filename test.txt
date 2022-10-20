@@ -1,0 +1,5 @@
+define Function(x as Int, y as Float) as Float begin
+  * + a b c
+  a b + c *
+  (a + b) * c 
+end
