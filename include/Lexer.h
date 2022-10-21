@@ -28,6 +28,16 @@ struct Token {
 
   static const std::unordered_map<TokenType, std::string> typeNames;
 
+  friend inline bool operator ==(const Token &lhs, const Token &rhs) {
+    return lhs.type == rhs.type;
+  }
+  friend inline bool operator ==(const Token &lhs, const TokenType &rhs) {
+    return lhs.type == rhs;
+  }
+  inline bool operator !() const {
+    return type == NONE;
+  }
+
   friend inline std::ostream &operator <<(std::ostream &os, const Token &token) {
     os << "Token(" << Token::typeNames.at(token.type) << ", `" << token.value << "`, " << token.row << ", " << token.col << ")";
     return os;

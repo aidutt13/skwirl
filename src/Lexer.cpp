@@ -194,10 +194,14 @@ Token Lexer::readIdentifierToken() {
 }
 
 Token Lexer::nextToken() {
-  m_currentToken = readNextToken();
-  return m_currentToken;
+  auto tok = currentToken();
+  m_currentToken = Token{NONE, "", 0, 0};
+  return tok;
 }
 
 Token Lexer::currentToken() {
+  if (m_currentToken.type == NONE) {
+    m_currentToken = readNextToken();
+  }
   return m_currentToken;
 }
