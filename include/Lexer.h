@@ -7,7 +7,7 @@
 
 #include "Chars.h"
 
-enum TokenType {
+enum class TokenType {
   NONE,
   EOB,
   IDENTIFIER,
@@ -20,8 +20,10 @@ enum TokenType {
   PUNCTUATOR,
 };
 
+extern std::unordered_map<char, char> escapeMap;
+
 struct Token {
-  TokenType type;
+  TokenType type = TokenType::NONE;
   std::string value;
   uint32_t row;
   uint32_t col;
@@ -35,7 +37,7 @@ struct Token {
     return lhs.type == rhs;
   }
   inline bool operator !() const {
-    return type == NONE;
+    return type == TokenType::NONE;
   }
 
   friend inline std::ostream &operator <<(std::ostream &os, const Token &token) {
