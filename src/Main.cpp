@@ -1,17 +1,22 @@
 #include <iostream>
 #include <fstream>
 
-#include "Lexer.h"
+#include "Parser.h"
 
 int main() {
 
   std::ifstream file("./test.txt");
 
   Lexer lexer(file);
+  Parser parser(lexer);
 
-  while (!lexer.eof()) {
-    std::cout << lexer.nextToken() << '\n';
-  }
+  // while (lexer.currentToken() != TokenType::EOB) {
+  //   std::cout << lexer.nextToken() << std::endl;
+  // }
+
+  AST ast = parser();
+  std::cout << ast << std::endl;
+
 
   return 0;
 }
