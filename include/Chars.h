@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstring>
+#include <string>
 
 bool isWhitespace(const char *c);
 bool isIdentifier(const char *c);

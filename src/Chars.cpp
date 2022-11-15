@@ -1,20 +1,33 @@
 #include "Chars.h"
 
+using namespace std::literals;
+
+bool strchr(const char *str, char c) {
+  const char *s = str;
+  while (*s != '\0') {
+    if (c == *s)
+      return true;
+    
+    ++s;
+  }
+  return false;
+}
+
 bool isWhitespace(const char *c) {
-  return *c == ' ' || *c == '\t' || *c == '\r' || *c == '\n' || *c == '\v' || *c == '\f';
+  return *c == ' ' || *c == '\t' || *c == '\r' || *c == '\v' || *c == '\f';
 }
 
 bool isIdentifier(const char *c) {
   return (*c >= 'a' && *c <= 'z') || (*c >= 'A' && *c <= 'Z') || (*c >= '0' && *c <= '9') || *c == '_';
 }
 
-const char *KEYWORDS[] = {
-  "let", "as", "const", "define", "begin", "do", "end", "if", "then", "else"
+std::string KEYWORDS[] = {
+  "let"s, "as"s, "const"s, "define"s, "begin"s, "do"s, "end"s, "if"s, "then"s, "else"s, ""s
 };
 bool isKeyword(const char *c) {
-  const char** keywords = KEYWORDS;
-  while (*keywords) {
-    if (strcmp(*keywords, c) == 0) {
+  std::string *keywords = KEYWORDS;
+  while (!keywords->empty()) {
+    if (*keywords == c) {
       return true;
     }
     keywords++;
@@ -36,10 +49,10 @@ bool isCharQuote(const char *c) {
 
 const char *OPERATORS = "+-*/%&|^~!?:=<>";
 bool isOperator(const char *c) {
-  return strchr(OPERATORS, *c) != NULL;
+  return strchr(OPERATORS, *c);
 }
 
-const char *PUNCTUATORS = ".,;()[]{}";
+const char *PUNCTUATORS = ".,;()[]{}\n";
 bool isPunctuator(const char *c) {
-  return strchr(PUNCTUATORS, *c) != NULL;
+  return strchr(PUNCTUATORS, *c);
 }
