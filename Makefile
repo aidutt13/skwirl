@@ -23,8 +23,10 @@ clean:
 	rm -f $(BUILDDIR)/*.o $(TARGET)
 
 debug: CXXFLAGS += -g
+debug: $(TARGET)
 
 release: CXXFLAGS += -O3
+release: $(TARGET)
 
 run: $(TARGET)
 	./$(TARGET)
