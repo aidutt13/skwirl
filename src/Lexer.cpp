@@ -1,16 +1,16 @@
 #include "Lexer.h"
 
 const std::unordered_map<TokenType, std::string> Token::typeNames = {
-  {NONE, "NONE"},
-  {EOB, "EOB"},
-  {IDENTIFIER, "IDENTIFIER"},
-  {KEYWORD, "KEYWORD"},
-  {INTEGER, "INTEGER"},
-  {FLOAT, "FLOAT"},
-  {STRING, "STRING"},
-  {CHAR, "CHAR"},
-  {OPERATOR, "OPERATOR"},
-  {PUNCTUATOR, "PUNCTUATOR"},
+  {TokenType::NONE, "NONE"},
+  {TokenType::EOB, "EOB"},
+  {TokenType::IDENTIFIER, "IDENTIFIER"},
+  {TokenType::KEYWORD, "KEYWORD"},
+  {TokenType::INTEGER, "INTEGER"},
+  {TokenType::FLOAT, "FLOAT"},
+  {TokenType::STRING, "STRING"},
+  {TokenType::CHAR, "CHAR"},
+  {TokenType::OPERATOR, "OPERATOR"},
+  {TokenType::PUNCTUATOR, "PUNCTUATOR"},
 };
 
 UnexpectedCharacterException::UnexpectedCharacterException(char c, uint32_t row, uint32_t col) {
@@ -19,10 +19,24 @@ UnexpectedCharacterException::UnexpectedCharacterException(char c, uint32_t row,
   m_message = ss.str();
 }
 
+std::unordered_map<char, char> escapeMap = {
+  { 'a', '\a' },
+  { 'b', '\b' },
+  { 'f', '\f' },
+  { 'n', '\n' },
+  { 'r', '\r' },
+  { 't', '\t' },
+  { 'v', '\v' },
+  { '\\', '\\' },
+  { '\'', '\'' },
+  { '\"', '\"' },
+  { '?', '\?' },
+};
+
 Lexer::Lexer(std::basic_istream<char> &stream) {
   m_data.clear();
   m_data << stream.rdbuf();
-  m_currentToken = Token{ NONE, "", 0, 0 };
+  m_currentToken = Token{ TokenType::NONE, "", 0, 0 };
 }
 
 char Lexer::peekChar() {
@@ -76,19 +90,6 @@ std::string Lexer::readWhile(std::function<bool(const char *)> predicate) {
   return result;
 }
 
-std::unordered_map<char, char> escapeMap = {
-  { 'a', '\a' },
-  { 'b', '\b' },
-  { 'f', '\f' },
-  { 'n', '\n' },
-  { 'r', '\r' },
-  { 't', '\t' },
-  { 'v', '\v' },
-  { '\\', '\\' },
-  { '\'', '\'' },
-  { '\"', '\"' },
-  { '?', '\?' },
-};
 std::string Lexer::readEscaped(char end) {
   std::string result;
   char cs[2];
@@ -120,7 +121,7 @@ std::string Lexer::readEscaped(char end) {
 Token Lexer::readNextToken() {
   skipWhitespace();
   if (eof()) {
-    return Token{ EOB, "", m_row, m_col };
+    return Token{ TokenType::EOB, "", m_row, m_col };
   }
 
   if (peekChar() == '/') {
@@ -146,20 +147,20 @@ Token Lexer::readNextToken() {
   if (isStringQuote(cs)) {
     auto row = m_row, col = m_col;
     nextChar();
-    return Token{ STRING, readEscaped('"'), row, col };
+    return Token{ TokenType::STRING, readEscaped('"'), row, col };
   }
   if (isCharQuote(cs)) {
     auto row = m_row, col = m_col;
     nextChar();
-    return Token{ CHAR, readEscaped('\''), row, col };
+    return Token{ TokenType::CHAR, readEscaped('\''), row, col };
   }
   if (isOperator(cs)) {
     auto row = m_row, col = m_col;
-    return Token{ OPERATOR, readWhile(&isOperator), row, col };
+    return Token{ TokenType::OPERATOR, readWhile(&isOperator), row, col };
   }
   if (isPunctuator(cs)) {
     auto row = m_row, col = m_col;
-    return Token{ PUNCTUATOR, std::string(1, nextChar()), row, col };
+    return Token{ TokenType::PUNCTUATOR, std::string(1, nextChar()), row, col };
   }
   
   throw UnexpectedCharacterException(*cs, m_row, m_col);
@@ -179,7 +180,7 @@ Token Lexer::readNumberToken() {
     return isDigit(c);
   });
 
-  return Token{ dot ? FLOAT : INTEGER, value, row, col };
+  return Token{ dot ? TokenType::FLOAT : TokenType::INTEGER, value, row, col };
 }
 
 Token Lexer::readIdentifierToken() {
@@ -187,20 +188,20 @@ Token Lexer::readIdentifierToken() {
   std::string value = readWhile(&isIdentifier);
 
   if (isKeyword(value.c_str())) {
-    return Token{ KEYWORD, value, row, col };
+    return Token{ TokenType::KEYWORD, value, row, col };
   }
 
-  return Token{ IDENTIFIER, value, row, col };
+  return Token{ TokenType::IDENTIFIER, value, row, col };
 }
 
 Token Lexer::nextToken() {
   auto tok = currentToken();
-  m_currentToken = Token{NONE, "", 0, 0};
+  m_currentToken = Token{TokenType::NONE, "", 0, 0};
   return tok;
 }
 
 Token Lexer::currentToken() {
-  if (m_currentToken.type == NONE) {
+  if (m_currentToken.type == TokenType::NONE) {
     m_currentToken = readNextToken();
   }
   return m_currentToken;
